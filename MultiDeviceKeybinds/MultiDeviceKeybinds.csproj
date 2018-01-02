@@ -136,7 +136,7 @@
     <Compile Include="UnelevatedHookForm.Designer.cs">
       <DependentUpon>UnelevatedHookForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="WinSafer.cs" />
+    <Compile Include="Helpers\WinSafer.cs" />
     <EmbeddedResource Include="KeybindForm.resx">
       <DependentUpon>KeybindForm.cs</DependentUpon>
     </EmbeddedResource>

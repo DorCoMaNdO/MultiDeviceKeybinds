@@ -61,12 +61,6 @@ namespace MultiDeviceKeybinds
                     {
                         p = CreateSubprocess(Handle);
 
-                        /*Console.WriteLine(p.MainWindowHandle);
-                        if (p.MainWindowHandle != IntPtr.Zero)
-                        {
-                            UnelevatedHookWindow window = new UnelevatedHookWindow(p.MainWindowHandle);
-                        }*/
-
                         p.WaitForExit();
                     }
                 })

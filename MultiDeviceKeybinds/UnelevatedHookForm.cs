@@ -13,12 +13,6 @@ namespace MultiDeviceKeybinds
 {
     internal partial class UnelevatedHookForm : Form
     {
-        /*[DllImport("NativeHookUnelevated", CallingConvention = CallingConvention.Cdecl)]
-        static extern bool InstallHook(IntPtr handle);
-
-        [DllImport("NativeHookUnelevated", CallingConvention = CallingConvention.Cdecl)]
-        static extern bool UninstallHook();*/
-
         public EventWaitHandle WaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
         public Queue<Message> MessageQueue = new Queue<Message>();
 
@@ -28,19 +22,6 @@ namespace MultiDeviceKeybinds
 
             InitializeComponent();
 
-            /*string path = Path.Combine(Program.Location, "NativeHook.dll"), unelevatedpath = Path.Combine(Program.Location, "NativeHookUnelevated.dll");
-            if (!File.Exists(unelevatedpath) && File.Exists(path)) File.Copy(path, unelevatedpath, true);
-
-            Application.ApplicationExit += (sender, e) => { UninstallHook(); };
-
-            if (!InstallHook(Handle))
-            {
-                parent.Kill();
-
-                Application.Exit();
-
-                return;
-            }*/
             Application.ApplicationExit += (sender, e) => { Program.Hook?.Dispose(); };
 
             if (!Program.Hook.Install(Handle, false))

@@ -41,12 +41,12 @@ namespace MultiDeviceKeybinds
                 if (asm != t.Assembly)
                 {
                     asm = t.Assembly;
-                    
+
                     guid = Marshal.GetTypeLibGuidForAssembly(asm).ToString();
                 }
 
                 string typename = $"{guid}.{t}";
-                
+
                 Console.Write($"Loading ICondition type \"{typename}\"... ");
 
                 try
@@ -64,9 +64,9 @@ namespace MultiDeviceKeybinds
 
                     Console.WriteLine("DONE");
                 }
-                catch
+                catch (Exception e)
                 {
-                    Console.WriteLine("FAILED");
+                    Console.WriteLine($"FAILED:\r\n{e}");
                 }
             }
 

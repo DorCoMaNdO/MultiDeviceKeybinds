@@ -64,9 +64,9 @@ namespace MultiDeviceKeybinds
 
                     Console.WriteLine("DONE");
                 }
-                catch
+                catch (Exception e)
                 {
-                    Console.WriteLine("FAILED");
+                    Console.WriteLine($"FAILED:\r\n{e}");
                 }
             }
 

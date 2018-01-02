@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -16,10 +15,6 @@ namespace MultiDeviceKeybinds
         private static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
         [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DeleteFile(string name);
 
         [DllImport("user32.dll")]
         private static extern int SetForegroundWindow(IntPtr hwnd);
@@ -115,9 +110,6 @@ namespace MultiDeviceKeybinds
 
             Console.Title = $"Multi Device Keybinds{(RunningAsAdmin ? " (Admin)" : "")}";
 
-            int width = Console.WindowWidth * 2;
-            if (width > Console.LargestWindowWidth) width = Console.LargestWindowWidth;
-
             Process current = Process.GetCurrentProcess();
             foreach (Process p in Process.GetProcesses())
             {
@@ -146,14 +138,17 @@ namespace MultiDeviceKeybinds
             current.PriorityClass = ProcessPriorityClass.High;
             //current.PriorityClass = ProcessPriorityClass.RealTime; // requires admin, runs as high otherwise
 
-            Console.WindowWidth = width;
+            int width = Console.WindowWidth * 2;
+            if (width > Console.LargestWindowWidth) width = Console.LargestWindowWidth;
 
-            foreach (string file in Directory.GetFiles(Location, "*.dll", SearchOption.TopDirectoryOnly).Concat(Directory.GetFiles(Location, "*.exe", SearchOption.TopDirectoryOnly))) DeleteFile(file + ":Zone.Identifier");
+            Console.WindowWidth = width;
 
             Application.ApplicationExit += Application_ApplicationExit;
 
             ForegroundWindowDelegate = new WinEventDelegate(WinEventProc);
             ForegroundWindowHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, ForegroundWindowDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
+
+            HideConsole();
 
             Application.Run(MainForm = new MainForm());
         }

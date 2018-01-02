@@ -49,12 +49,6 @@ namespace MultiKeyboardHook
 
     public class RawInputHook : NativeWindow, IDisposable
     {
-        /*[DllImport("NativeHook", CallingConvention = CallingConvention.Cdecl)]
-        static extern bool InstallHook(IntPtr handle);
-
-        [DllImport("NativeHook", CallingConvention = CallingConvention.Cdecl)]
-        static extern bool UninstallHook();*/
-
         public const int WM_HOOK = Win32.WM_APP + 1;
         public const int MaxWaitingTime = 100;
         private const int MaxBuffer = 15, MaxTimeouts = 10, MaxTimeoutsWaitingTime = 2;

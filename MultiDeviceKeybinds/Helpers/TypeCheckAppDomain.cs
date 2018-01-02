@@ -4,11 +4,16 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace MultiDeviceKeybinds
 {
     internal class TypeCheckAppDomain : MarshalByRefObject
     {
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool DeleteFile(string name);
+
         private static int _counter = 0;
 
         public TypeCheckAppDomain()
@@ -32,6 +37,8 @@ namespace MultiDeviceKeybinds
             {
                 try
                 {
+                    DeleteFile(file + ":Zone.Identifier");
+
                     AssemblyName asmname = AssemblyName.GetAssemblyName(file);
 
                     Assembly asm = Assembly.LoadFile(file);

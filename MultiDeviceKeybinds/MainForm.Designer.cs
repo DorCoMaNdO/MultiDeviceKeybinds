@@ -205,8 +205,6 @@
             // 
             this.ShowConsoleCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ShowConsoleCheckBox.AutoSize = true;
-            this.ShowConsoleCheckBox.Checked = true;
-            this.ShowConsoleCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.ShowConsoleCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ShowConsoleCheckBox.Location = new System.Drawing.Point(882, 37);
             this.ShowConsoleCheckBox.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);

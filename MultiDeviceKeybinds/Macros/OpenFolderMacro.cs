@@ -49,17 +49,20 @@ namespace MultiDeviceKeybinds
             path = path.Replace("/", "\\").TrimEnd('\\');
 
             IntPtr hwnd = IntPtr.Zero;
+            
+            ShellWindows shellWindows = new ShellWindows();
 
-            IEnumerable<InternetExplorer> folders = ExplorerHelper.GetOpenFolders();
-            foreach (InternetExplorer folder in folders)
+            foreach (InternetExplorer ie in shellWindows)
             {
+                if (!Path.GetFileNameWithoutExtension(ie.FullName).ToLower().Equals("explorer")) continue;
+
                 try
                 {
-                    string folderpath = new Uri(folder.LocationURL).LocalPath;
+                    string folderpath = new Uri(ie.LocationURL).LocalPath;
 
                     if (folderpath == path)
                     {
-                        hwnd = (IntPtr)folder.HWND;
+                        hwnd = (IntPtr)ie.HWND;
 
                         break;
                     }
@@ -87,7 +90,7 @@ namespace MultiDeviceKeybinds
             GetWindowPlacement(hwnd, ref placement);
 
             if (placement.showCmd == ShowWindowEnum.ShowMinimized) ShowWindow(hwnd, ShowWindowEnum.Restore);
-            
+
             Program.ForegroundWindow = hwnd;
         }
     }

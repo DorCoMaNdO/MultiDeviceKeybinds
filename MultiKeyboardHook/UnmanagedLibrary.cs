@@ -12,7 +12,7 @@ namespace MultiKeyboardHook
     /// <remarks>This is a managed wrapper over the native LoadLibrary, GetProcAddress, and
     /// FreeLibrary calls.
     /// </remarks>
-    public sealed class UnmanagedLibrary : IDisposable
+    internal sealed class UnmanagedLibrary : IDisposable
     {
         // See http://msdn.microsoft.com/msdnmag/issues/05/10/Reliability/ for more about safe handles.
         [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]

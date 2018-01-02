@@ -104,7 +104,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\DeviceListViewItem.cs" />
-    <Compile Include="Helpers\ExplorerHelper.cs" />
     <Compile Include="Input\InputSimulation.cs" />
     <Compile Include="Keybinds\Keybind.cs" />
     <Compile Include="Keybinds\KeybindDevice.cs" />
@@ -171,6 +170,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MultiKeyboardHook\MultiKeyboardHook.csproj">
+      <Project>{5b27c8e9-12dd-4d80-ae7f-26e68dfb2829}</Project>
+      <Name>MultiKeyboardHook</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <COMReference Include="SHDocVw">
       <Guid>{EAB22AC0-30C1-11CF-A7EB-0000C05BAE0B}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -180,21 +185,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="Shell32">
-      <Guid>{50A7E9B0-70EF-11D1-B75A-00A0C90564FE}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MultiKeyboardHook\MultiKeyboardHook.csproj">
-      <Project>{5b27c8e9-12dd-4d80-ae7f-26e68dfb2829}</Project>
-      <Name>MultiKeyboardHook</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

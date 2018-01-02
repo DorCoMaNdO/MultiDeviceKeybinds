@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace MultiDeviceKeybinds
 {
-    public partial class UnelevatedHookForm : Form
+    internal partial class UnelevatedHookForm : Form
     {
         /*[DllImport("NativeHookUnelevated", CallingConvention = CallingConvention.Cdecl)]
         static extern bool InstallHook(IntPtr handle);

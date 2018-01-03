@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label6.Text" xml:space="preserve">
+  <data name="InfoLabel.Text" xml:space="preserve">
     <value>* The pressed key(s) will be blocked on key down, key hold and key up even if not set to activate unless more keys are pressed while "Activate if more keys are pressed" is not checked
 * Arguments in parentheses ( ) are required
 * Arguments in square brackets [ ] are optional</value>

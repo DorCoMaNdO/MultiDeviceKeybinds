@@ -39,8 +39,8 @@ namespace MultiKeyboardHook
         public uint dwType;
     }
 
-    public delegate void RawInputKeyPressEvent(RawInputKeyPressEventArgs e);
-    public delegate void DeviceListUpdatedEvent(Device[] devices);
+    public delegate void RawInputKeyPressEvent(object sender, RawInputKeyPressEventArgs e);
+    public delegate void DeviceListUpdatedEvent(object sender, Device[] devices);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal delegate bool InstallHook(IntPtr handle);
@@ -323,7 +323,7 @@ namespace MultiKeyboardHook
 
                     Console.WriteLine($"Found {DevicesByHandle.Count - 1} device(s)");
 
-                    DeviceListUpdated?.Invoke(Devices);
+                    DeviceListUpdated?.Invoke(this, Devices);
 
                     return;
                 }
@@ -606,7 +606,7 @@ namespace MultiKeyboardHook
                 {
                     foreach (RawInputKeyPressEvent handler in handlers)
                     {
-                        handler.Invoke(args);
+                        handler.Invoke(this, args);
 
                         if (args.Handled) break;
                     }
@@ -622,7 +622,7 @@ namespace MultiKeyboardHook
             {
                 foreach (RawInputKeyPressEvent handler in handlers)
                 {
-                    handler.Invoke(args);
+                    handler.Invoke(this, args);
 
                     if (args.Handled) break;
                 }
@@ -638,7 +638,7 @@ namespace MultiKeyboardHook
                 {
                     foreach (RawInputKeyPressEvent handler in handlers)
                     {
-                        handler.Invoke(args);
+                        handler.Invoke(this, args);
 
                         if (args.Handled) break;
                     }

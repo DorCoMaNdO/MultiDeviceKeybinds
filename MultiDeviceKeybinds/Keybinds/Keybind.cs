@@ -14,7 +14,7 @@ namespace MultiDeviceKeybinds
         public const string KeysSeparator = "+";
 
         public string Name { get; internal set; }
-        public bool Enabled { get; internal set; }
+        public bool Enabled { get; internal set; } = true;
         public List<Keys> Keys { get; private set; } = new List<Keys>();
         public bool MatchKeysOrder { get; internal set; } = false;
         public bool ActivateOnKeyDown { get; internal set; } = true;

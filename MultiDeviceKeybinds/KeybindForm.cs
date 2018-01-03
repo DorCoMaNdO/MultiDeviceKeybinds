@@ -27,6 +27,8 @@ namespace MultiDeviceKeybinds
             NameTextBox.AutoSize = KeysTextBox.AutoSize = ConditionArgTextBox.AutoSize = MacroArgTextBox.AutoSize = false;
             NameTextBox.Height = KeysTextBox.Height = ConditionArgTextBox.Height = MacroArgTextBox.Height = 21;
 
+            KeybindForm_Resize(null, EventArgs.Empty);
+
             ConditionArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
             MacroArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
 
@@ -50,7 +52,7 @@ namespace MultiDeviceKeybinds
 
             Device = device;
 
-            Keybind = keybind == null ? new Keybind() { Enabled = true } : new Keybind(keybind.Name, keybind.Keys.ToList(), keybind.Condition, keybind.ConditionArgs, keybind.Macro, keybind.MacroArgs)
+            Keybind = keybind == null ? new Keybind() : new Keybind(keybind.Name, keybind.Keys.ToList(), keybind.Condition, keybind.ConditionArgs, keybind.Macro, keybind.MacroArgs)
             {
                 Device = Device,
                 Enabled = keybind.Enabled,
@@ -64,12 +66,11 @@ namespace MultiDeviceKeybinds
 
             NameTextBox.Text = Keybind.Name ?? "";
 
+            NameTextBox.Select();
+
             EnabledCheckBox.Checked = Keybind.Enabled;
 
-            string keys = string.Join(Keybind.KeysSeparator, Keybind?.Keys);
-            KeysTextBox.Text = !string.IsNullOrEmpty(keys) ? keys : "Not set";
-
-            MatchKeysOrderCheckBox.Checked = Keybind.MatchKeysOrder;
+            UpdateKeys();
 
             ActivateOnKeyDownCheckBox.Checked = Keybind.ActivateOnKeyDown;
             ActivateOnHoldCheckBox.Checked = Keybind.ActivateOnHold;
@@ -106,12 +107,12 @@ namespace MultiDeviceKeybinds
 
         private void KeybindForm_Resize(object sender, EventArgs e)
         {
-            ConditionArgsTakenLabel.MaximumSize = MacroArgsTakenLabel.MaximumSize = new Size(ClientSize.Width - 6, ConditionArgsTakenLabel.MaximumSize.Height);
+            ConditionDescriptionLabel.MaximumSize = ConditionArgsTakenLabel.MaximumSize = MacroDescriptionLabel.MaximumSize = MacroArgsTakenLabel.MaximumSize = InfoLabel.MaximumSize = new Size(ClientSize.Width - 6, ConditionArgsTakenLabel.MaximumSize.Height);
         }
 
         private void CheckCanSave()
         {
-            AddEditButton.Enabled = Keybind.Name?.Length > 2 && Keybind.Keys.Count > 0;
+            AddEditButton.Enabled = Keybind.Name?.Length > 2;// && Keybind.Keys.Count > 0;
         }
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
@@ -131,7 +132,18 @@ namespace MultiDeviceKeybinds
             e.Handled = true;
         }
 
-        private void RawInputHook_HookDisabledOnKeyPress(RawInputKeyPressEventArgs e)
+        private void UpdateKeys()
+        {
+            KeysTextBox.Text = Keybind.Keys.Count > 0 ? string.Join(Keybind.KeysSeparator, Keybind.Keys) : "Not set";
+
+            MatchKeysOrderCheckBox.Enabled = Keybind.Keys.Count > 1;
+
+            ClearKeysButton.Enabled = Keybind.Keys.Count > 0;
+
+            CheckCanSave();
+        }
+
+        private void RawInputHook_HookDisabledOnKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
             if (Program.ForegroundWindow != Handle || !Visible || !KeysTextBox.Focused || Device?.ID != e.Device.ID) return;
 
@@ -143,14 +155,19 @@ namespace MultiDeviceKeybinds
 
             Keybind.Keys.AddRange(e.Device.Pressed);
 
-            KeysTextBox.Text = string.Join(Keybind.KeysSeparator, Keybind.Keys);
-
-            CheckCanSave();
+            UpdateKeys();
         }
 
         private void MatchKeysOrderCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             Keybind.MatchKeysOrder = MatchKeysOrderCheckBox.Checked;
+        }
+
+        private void ClearKeysButton_Click(object sender, EventArgs e)
+        {
+            Keybind.Keys.Clear();
+
+            UpdateKeys();
         }
 
         private void ActivateOnKeyDownCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -211,7 +228,7 @@ namespace MultiDeviceKeybinds
             if (Keybind.ConditionTypeName != null)
             {
                 ConditionComboBox.SelectedIndex = Array.IndexOf(Program.MainForm.Conditions.Keys.ToArray(), Keybind.ConditionTypeName) + 1;
-                
+
                 try
                 {
                     description = Keybind.Condition.Description;
@@ -335,7 +352,7 @@ namespace MultiDeviceKeybinds
             if (Keybind.MacroTypeName != null)
             {
                 MacroComboBox.SelectedIndex = Array.IndexOf(Program.MainForm.Macros.Keys.ToArray(), Keybind.MacroTypeName) + 1;
-                
+
                 try
                 {
                     description = Keybind.Macro.Description;

@@ -48,7 +48,7 @@
             this.ConditionDescriptionLabel = new System.Windows.Forms.Label();
             this.MacroDescriptionLabel = new System.Windows.Forms.Label();
             this.CancelDialogButton = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
+            this.InfoLabel = new System.Windows.Forms.Label();
             this.KeysTextBox = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.ActivateIfMoreKeysPressedCheckBox = new System.Windows.Forms.CheckBox();
@@ -65,6 +65,7 @@
             this.ActivateOnKeyUpCheckBox = new System.Windows.Forms.CheckBox();
             this.ActivateOnHoldCheckBox = new System.Windows.Forms.CheckBox();
             this.MatchKeysOrderCheckBox = new System.Windows.Forms.CheckBox();
+            this.ClearKeysButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // AddEditButton
@@ -195,7 +196,7 @@
             this.ConditionArgsTakenLabel.AutoSize = true;
             this.ConditionArgsTakenLabel.Location = new System.Drawing.Point(3, 165);
             this.ConditionArgsTakenLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.ConditionArgsTakenLabel.MaximumSize = new System.Drawing.Size(518, 130);
+            this.ConditionArgsTakenLabel.MaximumSize = new System.Drawing.Size(537, 130);
             this.ConditionArgsTakenLabel.Name = "ConditionArgsTakenLabel";
             this.ConditionArgsTakenLabel.Size = new System.Drawing.Size(33, 13);
             this.ConditionArgsTakenLabel.TabIndex = 10;
@@ -221,7 +222,7 @@
             this.MacroArgsTakenLabel.AutoSize = true;
             this.MacroArgsTakenLabel.Location = new System.Drawing.Point(3, 369);
             this.MacroArgsTakenLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.MacroArgsTakenLabel.MaximumSize = new System.Drawing.Size(518, 130);
+            this.MacroArgsTakenLabel.MaximumSize = new System.Drawing.Size(537, 130);
             this.MacroArgsTakenLabel.Name = "MacroArgsTakenLabel";
             this.MacroArgsTakenLabel.Size = new System.Drawing.Size(33, 13);
             this.MacroArgsTakenLabel.TabIndex = 15;
@@ -267,7 +268,7 @@
             this.ConditionDescriptionLabel.AutoSize = true;
             this.ConditionDescriptionLabel.Location = new System.Drawing.Point(3, 139);
             this.ConditionDescriptionLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.ConditionDescriptionLabel.MaximumSize = new System.Drawing.Size(518, 86);
+            this.ConditionDescriptionLabel.MaximumSize = new System.Drawing.Size(537, 130);
             this.ConditionDescriptionLabel.Name = "ConditionDescriptionLabel";
             this.ConditionDescriptionLabel.Size = new System.Drawing.Size(81, 13);
             this.ConditionDescriptionLabel.TabIndex = 16;
@@ -278,7 +279,7 @@
             this.MacroDescriptionLabel.AutoSize = true;
             this.MacroDescriptionLabel.Location = new System.Drawing.Point(3, 343);
             this.MacroDescriptionLabel.Margin = new System.Windows.Forms.Padding(0);
-            this.MacroDescriptionLabel.MaximumSize = new System.Drawing.Size(518, 86);
+            this.MacroDescriptionLabel.MaximumSize = new System.Drawing.Size(537, 130);
             this.MacroDescriptionLabel.Name = "MacroDescriptionLabel";
             this.MacroDescriptionLabel.Size = new System.Drawing.Size(70, 13);
             this.MacroDescriptionLabel.TabIndex = 17;
@@ -297,17 +298,17 @@
             this.CancelDialogButton.Text = "Cancel";
             this.CancelDialogButton.UseVisualStyleBackColor = false;
             // 
-            // label6
+            // InfoLabel
             // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 523);
-            this.label6.Margin = new System.Windows.Forms.Padding(0);
-            this.label6.MaximumSize = new System.Drawing.Size(537, 86);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(528, 52);
-            this.label6.TabIndex = 19;
-            this.label6.Text = resources.GetString("label6.Text");
+            this.InfoLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.InfoLabel.AutoSize = true;
+            this.InfoLabel.Location = new System.Drawing.Point(3, 523);
+            this.InfoLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.InfoLabel.MaximumSize = new System.Drawing.Size(537, 130);
+            this.InfoLabel.Name = "InfoLabel";
+            this.InfoLabel.Size = new System.Drawing.Size(528, 52);
+            this.InfoLabel.TabIndex = 19;
+            this.InfoLabel.Text = resources.GetString("InfoLabel.Text");
             // 
             // KeysTextBox
             // 
@@ -318,7 +319,7 @@
             this.KeysTextBox.Location = new System.Drawing.Point(6, 59);
             this.KeysTextBox.Name = "KeysTextBox";
             this.KeysTextBox.ReadOnly = true;
-            this.KeysTextBox.Size = new System.Drawing.Size(531, 20);
+            this.KeysTextBox.Size = new System.Drawing.Size(504, 20);
             this.KeysTextBox.TabIndex = 20;
             this.KeysTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.KeysTextBox_KeyDown);
             // 
@@ -520,11 +521,27 @@
             this.MatchKeysOrderCheckBox.UseVisualStyleBackColor = true;
             this.MatchKeysOrderCheckBox.CheckedChanged += new System.EventHandler(this.MatchKeysOrderCheckBox_CheckedChanged);
             // 
+            // ClearKeysButton
+            // 
+            this.ClearKeysButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ClearKeysButton.BackColor = System.Drawing.Color.White;
+            this.ClearKeysButton.Enabled = false;
+            this.ClearKeysButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ClearKeysButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.1F);
+            this.ClearKeysButton.Location = new System.Drawing.Point(516, 59);
+            this.ClearKeysButton.Name = "ClearKeysButton";
+            this.ClearKeysButton.Size = new System.Drawing.Size(21, 21);
+            this.ClearKeysButton.TabIndex = 36;
+            this.ClearKeysButton.Text = "X";
+            this.ClearKeysButton.UseVisualStyleBackColor = false;
+            this.ClearKeysButton.Click += new System.EventHandler(this.ClearKeysButton_Click);
+            // 
             // KeybindForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(543, 607);
+            this.Controls.Add(this.ClearKeysButton);
             this.Controls.Add(this.MatchKeysOrderCheckBox);
             this.Controls.Add(this.ActivateOnHoldCheckBox);
             this.Controls.Add(this.ActivateOnKeyUpCheckBox);
@@ -537,7 +554,7 @@
             this.Controls.Add(this.AllowOtherKeybindsCheckBox);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.KeysTextBox);
-            this.Controls.Add(this.label6);
+            this.Controls.Add(this.InfoLabel);
             this.Controls.Add(this.CancelDialogButton);
             this.Controls.Add(this.MacroDescriptionLabel);
             this.Controls.Add(this.ConditionDescriptionLabel);
@@ -593,7 +610,7 @@
         private System.Windows.Forms.Label ConditionDescriptionLabel;
         private System.Windows.Forms.Label MacroDescriptionLabel;
         private System.Windows.Forms.Button CancelDialogButton;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label InfoLabel;
         private System.Windows.Forms.TextBox KeysTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.CheckBox ActivateIfMoreKeysPressedCheckBox;
@@ -610,5 +627,6 @@
         private System.Windows.Forms.CheckBox ActivateOnKeyUpCheckBox;
         private System.Windows.Forms.CheckBox ActivateOnHoldCheckBox;
         private System.Windows.Forms.CheckBox MatchKeysOrderCheckBox;
+        private System.Windows.Forms.Button ClearKeysButton;
     }
 }

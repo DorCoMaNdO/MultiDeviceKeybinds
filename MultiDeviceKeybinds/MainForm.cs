@@ -84,7 +84,7 @@ namespace MultiDeviceKeybinds
 
             foreach (IMacro macro in Macros.Values) KeybindForm.MacroComboBox.Items.Add(new IMacroWrapper(macro));
 
-            RawInputHook_DeviceListUpdated(Hook.Devices);
+            RawInputHook_DeviceListUpdated(null, Hook.Devices);
             Hook.DeviceListUpdated += RawInputHook_DeviceListUpdated;
 
             Hook.OnKeyPress += RawInputHook_KeyPressed;
@@ -191,7 +191,7 @@ namespace MultiDeviceKeybinds
             }.Start();
         }
 
-        private async void RawInputHook_KeyPressed(RawInputKeyPressEventArgs e)
+        private async void RawInputHook_KeyPressed(object sender, RawInputKeyPressEventArgs e)
         {
             lock (KeybindDevices)
             {
@@ -255,7 +255,7 @@ namespace MultiDeviceKeybinds
             }
         }
 
-        private void Keybinds_OnKeyPress(RawInputKeyPressEventArgs e)
+        private void Keybinds_OnKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
             Keybind[] keybinds = null;
 
@@ -269,7 +269,8 @@ namespace MultiDeviceKeybinds
 
                 foreach (Keybind keybind in keybinds)
                 {
-                    if (!keybind.Enabled || keybind.Keys?.Count == 0) continue;
+                    //if (!keybind.Enabled || keybind.Keys?.Count == 0) continue;
+                    if (!keybind.Enabled || keybind.Keys == null) continue;
 
                     IEnumerable<Keys> pressed = state == KeyState.Make ? e.Device.Pressed : e.Device.LastPressed;
 
@@ -347,7 +348,7 @@ namespace MultiDeviceKeybinds
             }
         }
 
-        private void Keybinds_HandledKeyPress(RawInputKeyPressEventArgs e)
+        private void Keybinds_HandledKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
             List<Keybind> keybinds = null;
 
@@ -371,7 +372,7 @@ namespace MultiDeviceKeybinds
             }
         }
 
-        private void RawInputHook_DeviceListUpdated(Device[] devices)
+        private void RawInputHook_DeviceListUpdated(object sender, Device[] devices)
         {
             Device selected = DevicesListView.SelectedItems.Count > 0 ? ((DeviceListViewItem)DevicesListView.SelectedItems[0]).Device : null;
 

@@ -54,11 +54,12 @@ namespace MultiDeviceKeybinds
             {
                 Device = Device,
                 Enabled = keybind.Enabled,
-                ActivateIfMoreKeysPressed = keybind.ActivateIfMoreKeysPressed,
-                AllowOtherKeybinds = keybind.AllowOtherKeybinds,
+                MatchKeysOrder = keybind.MatchKeysOrder,
                 ActivateOnKeyDown = keybind.ActivateOnKeyDown,
                 ActivateOnHold = keybind.ActivateOnHold,
                 ActivateOnKeyUp = keybind.ActivateOnKeyUp,
+                ActivateIfMoreKeysPressed = keybind.ActivateIfMoreKeysPressed,
+                AllowOtherKeybinds = keybind.AllowOtherKeybinds,
             };
 
             NameTextBox.Text = Keybind.Name ?? "";
@@ -68,9 +69,12 @@ namespace MultiDeviceKeybinds
             string keys = string.Join(Keybind.KeysSeparator, Keybind?.Keys);
             KeysTextBox.Text = !string.IsNullOrEmpty(keys) ? keys : "Not set";
 
+            MatchKeysOrderCheckBox.Checked = Keybind.MatchKeysOrder;
+
             ActivateOnKeyDownCheckBox.Checked = Keybind.ActivateOnKeyDown;
             ActivateOnHoldCheckBox.Checked = Keybind.ActivateOnHold;
             ActivateOnKeyUpCheckBox.Checked = Keybind.ActivateOnKeyUp;
+
             ActivateIfMoreKeysPressedCheckBox.Checked = Keybind.ActivateIfMoreKeysPressed;
 
             UpdateCondition();
@@ -142,6 +146,11 @@ namespace MultiDeviceKeybinds
             KeysTextBox.Text = string.Join(Keybind.KeysSeparator, Keybind.Keys);
 
             CheckCanSave();
+        }
+
+        private void MatchKeysOrderCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Keybind.MatchKeysOrder = MatchKeysOrderCheckBox.Checked;
         }
 
         private void ActivateOnKeyDownCheckBox_CheckedChanged(object sender, EventArgs e)

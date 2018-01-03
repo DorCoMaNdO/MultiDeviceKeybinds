@@ -58,52 +58,47 @@ namespace MultiDeviceKeybinds
 
         public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
         {
-            if (args.Length >= 1 && args.Length <= 3 && args[0] is string processname)
+            if (args.Length < 1 || !(args[0] is string processname)) return false;
+
+            List<IntPtr> windows = new List<IntPtr>();
+
+            string classname = args.Length > 1 && args[1] is string cn ? cn : null;
+
+            Process[] processes = Process.GetProcessesByName(processname);
+            foreach (Process p in processes)
             {
-                List<IntPtr> windows = new List<IntPtr>();
-
-                string classname = args.Length > 1 ? args[1] as string : null;
-
-                //IntPtr foreground = args.Length > 2 ? args[2] as IntPtr? ?? GetForegroundWindow() : GetForegroundWindow();
-
-                Process[] processes = Process.GetProcessesByName(processname);
-                foreach (Process p in processes)
+                foreach (ProcessThread t in p.Threads)
                 {
-                    foreach (ProcessThread t in p.Threads)
+                    EnumThreadWindows(t.Id, (hwnd, lParam) =>
                     {
-                        EnumThreadWindows(t.Id, (hwnd, lParam) =>
+                        if (string.IsNullOrEmpty(classname))
                         {
-                            if (string.IsNullOrEmpty(classname))
-                            {
-                                windows.Add(hwnd);
-
-                                return true;
-                            }
-
-                            string hwndclass = GetClassNameOfWindow(hwnd);
-                            if (hwndclass != null && hwndclass.Length == classname.Length && hwndclass.Equals(classname, StringComparison.InvariantCultureIgnoreCase)) windows.Add(hwnd);
+                            windows.Add(hwnd);
 
                             return true;
-                        }, "");
-                    }
+                        }
+
+                        string hwndclass = GetClassNameOfWindow(hwnd);
+                        if (hwndclass != null && hwndclass.Length == classname.Length && hwndclass.Equals(classname, StringComparison.InvariantCultureIgnoreCase)) windows.Add(hwnd);
+
+                        return true;
+                    }, "");
                 }
-
-                Dictionary<int, IntPtr> Zorder = new Dictionary<int, IntPtr>();
-                foreach (IntPtr hwnd in windows)
-                {
-                    int z = GetWindowZOrder(hwnd);
-
-                    if (z == -1) continue;
-
-                    Zorder[z] = hwnd;
-                }
-
-                RestoreWindow(Zorder.OrderBy(kv => kv.Key).ElementAt(Zorder.Count - 1).Value);
-
-                return true;
             }
 
-            return false;
+            Dictionary<int, IntPtr> Zorder = new Dictionary<int, IntPtr>();
+            foreach (IntPtr hwnd in windows)
+            {
+                int z = GetWindowZOrder(hwnd);
+
+                if (z == -1) continue;
+
+                Zorder[z] = hwnd;
+            }
+
+            RestoreWindow(Zorder.OrderBy(kv => kv.Key).ElementAt(Zorder.Count - 1).Value);
+
+            return true;
         }
 
         private void RestoreWindow(IntPtr hwnd)

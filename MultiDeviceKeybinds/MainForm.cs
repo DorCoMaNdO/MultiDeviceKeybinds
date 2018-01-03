@@ -193,7 +193,14 @@ namespace MultiDeviceKeybinds
 
         private async void RawInputHook_KeyPressed(RawInputKeyPressEventArgs e)
         {
-            lock (KeybindDevices) if (KeybindDevices.ContainsKey(e.Device.ID)) KeybindDevices[e.Device.ID].Pressed = e.Device.Pressed;
+            lock (KeybindDevices)
+            {
+                if (KeybindDevices.ContainsKey(e.Device.ID))
+                {
+                    KeybindDevices[e.Device.ID].Pressed = e.Device.Pressed;
+                    KeybindDevices[e.Device.ID].LastPressed = e.Device.LastPressed;
+                }
+            }
 
             if (Program.ForegroundWindow != Handle) return;
 
@@ -258,26 +265,45 @@ namespace MultiDeviceKeybinds
             {
                 bool handled = false;
 
+                KeyState state = (KeyState)e.KeyPressState, lastState = (KeyState)e.LastKeyPressState;
+
                 foreach (Keybind keybind in keybinds)
                 {
                     if (!keybind.Enabled || keybind.Keys?.Count == 0) continue;
 
-                    IEnumerable<Keys> pressed = e.Device.Pressed;
-                    if (!pressed.Contains(e.CorrectedKey)) pressed = pressed.Concat(new[] { e.CorrectedKey });
+                    IEnumerable<Keys> pressed = state == KeyState.Make ? e.Device.Pressed : e.Device.LastPressed;
 
-                    if (!keybind.ActivateIfMoreKeysPressed && pressed.Count() > keybind.Keys.Count) continue;
+                    if (pressed.Count() < keybind.Keys.Count || !keybind.ActivateIfMoreKeysPressed && pressed.Count() > keybind.Keys.Count) continue;
 
                     bool invoke = true;
 
-                    foreach (Keys key in keybind.Keys)
+                    if (keybind.MatchKeysOrder)
                     {
-                        if (!pressed.Contains(key))
+                        //invoke = pressed.SequenceEqual(keybind.Keys);
+                        for (int i = 0; i < keybind.Keys.Count; i++)
                         {
-                            invoke = false;
+                            if (pressed.ElementAt(i) != keybind.Keys[i])
+                            {
+                                invoke = false;
 
-                            break;
+                                break;
+                            }
                         }
                     }
+                    else
+                    {
+                        foreach (Keys key in keybind.Keys)
+                        {
+                            if (!pressed.Contains(key))
+                            {
+                                invoke = false;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!invoke) continue;
 
 #warning condition might need to change to include test for the current key being in the keybind's keys
                     if (!keybind.ActivateIfMoreKeysPressed)
@@ -293,27 +319,32 @@ namespace MultiDeviceKeybinds
                         }
                     }
 
-                    if (invoke)
+                    if (!invoke) continue;
+
+                    bool condition = keybind.TestCondition(keybind.Device, e.Key, e.CorrectedKey, state, lastState);
+
+                    if (condition)
                     {
-                        bool condition = keybind.TestCondition(keybind.Device, e.Key, e.CorrectedKey, (KeyState)e.KeyPressState, (KeyState)e.LastKeyPressState);
+                        handled = true;
 
-                        if (condition)
+                        if (state == KeyState.Make && lastState != KeyState.Make && !keybind.ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && !keybind.ActivateOnHold || state == KeyState.Break && !keybind.ActivateOnKeyUp) continue;
+
+                        lock (KeybindsToInvoke)
                         {
-                            handled = condition;
+                            if (!KeybindsToInvoke.ContainsKey(e.GUID)) KeybindsToInvoke.Add(e.GUID, new List<Keybind>());
 
-                            lock (KeybindsToInvoke)
-                            {
-                                if (!KeybindsToInvoke.ContainsKey(e.GUID)) KeybindsToInvoke.Add(e.GUID, new List<Keybind>());
-
-                                KeybindsToInvoke[e.GUID].Add(keybind);
-                            }
-
-                            if (!keybind.AllowOtherKeybinds) break;
+                            KeybindsToInvoke[e.GUID].Add(keybind);
                         }
+
+                        if (!keybind.AllowOtherKeybinds) break;
+
+                        //continue;
                     }
+
+                    //if (state == KeyState.Make && lastState != KeyState.Make && keybind.BlockKeyDown || state == KeyState.Make && lastState == KeyState.Make && keybind.BlockKeyHold || state == KeyState.Break && keybind.BlockKeyUp) handled = true;
                 }
 
-                if (handled) e.Handled = true;
+                e.Handled = handled;
             }
         }
 

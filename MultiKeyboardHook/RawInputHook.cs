@@ -382,6 +382,7 @@ namespace MultiKeyboardHook
                 pressed.RemoveAll(k => k == args.CorrectedKey);
             }
 
+            device.LastPressed = device.Pressed;
             device.Pressed = pressed.ToArray();
 
             ProcessKeyPress(args);

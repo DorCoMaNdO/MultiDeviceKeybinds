@@ -115,6 +115,10 @@ namespace MultiDeviceKeybinds
                     Sleep(delay);
                 }
             }
+            else
+            {
+                Sleep(duration);
+            }
 
             KeyUp(key);
         }
@@ -122,6 +126,11 @@ namespace MultiDeviceKeybinds
         public static void Sleep(int duration)
         {
             InputSimulator.Keyboard.Sleep(duration);
+        }
+
+        public static void Write(string text)
+        {
+            InputSimulator.Keyboard.TextEntry(text);
         }
 
         internal static void KeyUp(VirtualKeyCode key)

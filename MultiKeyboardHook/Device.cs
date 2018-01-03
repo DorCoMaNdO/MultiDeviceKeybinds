@@ -33,6 +33,11 @@ namespace MultiKeyboardHook
         /// </summary>
         public Keys[] Pressed { get; protected internal set; } = new Keys[0];
         [JsonIgnore]
+        /// <summary>
+        /// The keys last pressed on the device.
+        /// </summary>
+        public Keys[] LastPressed { get; protected internal set; } = new Keys[0];
+        [JsonIgnore]
         public bool RControl { get { return Pressed.Contains(Keys.RControlKey); } }
         [JsonIgnore]
         public bool LControl { get { return Pressed.Contains(Keys.LControlKey); } }

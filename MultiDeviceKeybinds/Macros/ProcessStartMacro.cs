@@ -6,8 +6,8 @@ namespace MultiDeviceKeybinds
     class ProcessStartMacro : IMacro
     {
         public string Name { get { return "Start Process"; } }
-        public string Description { get { return "Launches new process for the path provided in the passthrough object."; } }
-        public string ArgumentsTaken { get { return "(string) path"; } }
+        public string Description { get { return "Launches a new process."; } }
+        public string ArgumentsTaken { get { return "(string) file path\r\n[string] arguments"; } }
 
         public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
         {

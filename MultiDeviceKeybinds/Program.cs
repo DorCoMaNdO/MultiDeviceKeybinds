@@ -70,6 +70,8 @@ namespace MultiDeviceKeybinds
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Process current = Process.GetCurrentProcess();
+
             RunningAsAdmin = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
             if (!RunningAsAdmin)
@@ -94,6 +96,10 @@ namespace MultiDeviceKeybinds
                     {
                         Console.Title = "Multi Device Keybinds (Subprocess)";
 
+                        Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
+                        current.PriorityClass = ProcessPriorityClass.High;
+
                         HideConsole();
 
                         Hook = new RawInputHook();
@@ -110,7 +116,6 @@ namespace MultiDeviceKeybinds
 
             Console.Title = $"Multi Device Keybinds{(RunningAsAdmin ? " (Admin)" : "")}";
 
-            Process current = Process.GetCurrentProcess();
             foreach (Process p in Process.GetProcesses())
             {
                 try
@@ -131,12 +136,11 @@ namespace MultiDeviceKeybinds
                 }
             }
 
-            Hook = new RawInputHook();
-
-            Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+            Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
             current.PriorityClass = ProcessPriorityClass.High;
-            //current.PriorityClass = ProcessPriorityClass.RealTime; // requires admin, runs as high otherwise
+
+            Hook = new RawInputHook();
 
             int width = Console.WindowWidth * 2;
             if (width > Console.LargestWindowWidth) width = Console.LargestWindowWidth;

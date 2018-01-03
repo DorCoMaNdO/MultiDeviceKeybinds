@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KeybindForm));
             this.AddEditButton = new System.Windows.Forms.Button();
             this.EnabledCheckBox = new System.Windows.Forms.CheckBox();
             this.NameTextBox = new System.Windows.Forms.TextBox();
@@ -63,6 +64,7 @@
             this.ActivateOnKeyDownCheckBox = new System.Windows.Forms.CheckBox();
             this.ActivateOnKeyUpCheckBox = new System.Windows.Forms.CheckBox();
             this.ActivateOnHoldCheckBox = new System.Windows.Forms.CheckBox();
+            this.MatchKeysOrderCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // AddEditButton
@@ -72,7 +74,7 @@
             this.AddEditButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.AddEditButton.Enabled = false;
             this.AddEditButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.AddEditButton.Location = new System.Drawing.Point(6, 552);
+            this.AddEditButton.Location = new System.Drawing.Point(6, 578);
             this.AddEditButton.Name = "AddEditButton";
             this.AddEditButton.Size = new System.Drawing.Size(253, 23);
             this.AddEditButton.TabIndex = 0;
@@ -288,7 +290,7 @@
             this.CancelDialogButton.BackColor = System.Drawing.Color.White;
             this.CancelDialogButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.CancelDialogButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.CancelDialogButton.Location = new System.Drawing.Point(284, 552);
+            this.CancelDialogButton.Location = new System.Drawing.Point(284, 578);
             this.CancelDialogButton.Name = "CancelDialogButton";
             this.CancelDialogButton.Size = new System.Drawing.Size(253, 23);
             this.CancelDialogButton.TabIndex = 18;
@@ -301,12 +303,11 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(3, 523);
             this.label6.Margin = new System.Windows.Forms.Padding(0);
-            this.label6.MaximumSize = new System.Drawing.Size(518, 86);
+            this.label6.MaximumSize = new System.Drawing.Size(537, 86);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(224, 26);
+            this.label6.Size = new System.Drawing.Size(528, 52);
             this.label6.TabIndex = 19;
-            this.label6.Text = "* Arguments in parentheses ( ) are required\r\n* Arguments in square brackets [ ] a" +
-    "re optional";
+            this.label6.Text = resources.GetString("label6.Text");
             // 
             // KeysTextBox
             // 
@@ -506,11 +507,25 @@
             this.ActivateOnHoldCheckBox.UseVisualStyleBackColor = true;
             this.ActivateOnHoldCheckBox.CheckedChanged += new System.EventHandler(this.ActivateOnHoldCheckBox_CheckedChanged);
             // 
+            // MatchKeysOrderCheckBox
+            // 
+            this.MatchKeysOrderCheckBox.AutoSize = true;
+            this.MatchKeysOrderCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.MatchKeysOrderCheckBox.Location = new System.Drawing.Point(457, 41);
+            this.MatchKeysOrderCheckBox.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.MatchKeysOrderCheckBox.Name = "MatchKeysOrderCheckBox";
+            this.MatchKeysOrderCheckBox.Size = new System.Drawing.Size(80, 17);
+            this.MatchKeysOrderCheckBox.TabIndex = 35;
+            this.MatchKeysOrderCheckBox.Text = "Match order";
+            this.MatchKeysOrderCheckBox.UseVisualStyleBackColor = true;
+            this.MatchKeysOrderCheckBox.CheckedChanged += new System.EventHandler(this.MatchKeysOrderCheckBox_CheckedChanged);
+            // 
             // KeybindForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(543, 581);
+            this.ClientSize = new System.Drawing.Size(543, 607);
+            this.Controls.Add(this.MatchKeysOrderCheckBox);
             this.Controls.Add(this.ActivateOnHoldCheckBox);
             this.Controls.Add(this.ActivateOnKeyUpCheckBox);
             this.Controls.Add(this.ActivateOnKeyDownCheckBox);
@@ -594,5 +609,6 @@
         private System.Windows.Forms.CheckBox ActivateOnKeyDownCheckBox;
         private System.Windows.Forms.CheckBox ActivateOnKeyUpCheckBox;
         private System.Windows.Forms.CheckBox ActivateOnHoldCheckBox;
+        private System.Windows.Forms.CheckBox MatchKeysOrderCheckBox;
     }
 }

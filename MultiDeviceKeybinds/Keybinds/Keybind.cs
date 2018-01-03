@@ -16,6 +16,7 @@ namespace MultiDeviceKeybinds
         public string Name { get; internal set; }
         public bool Enabled { get; internal set; }
         public List<Keys> Keys { get; private set; } = new List<Keys>();
+        public bool MatchKeysOrder { get; internal set; } = false;
         public bool ActivateOnKeyDown { get; internal set; } = true;
         public bool ActivateOnHold { get; internal set; } = false;
         public bool ActivateOnKeyUp { get; internal set; } = false;
@@ -55,11 +56,21 @@ namespace MultiDeviceKeybinds
         }
 
         [JsonConstructor]
-        internal Keybind(string name, bool enabled, string conditionTypeName, object[] conditionArgs, string macroTypeName, object[] macroArgs, bool activateIfMoreKeysPressed, bool allowOtherKeybinds, bool activateOnKeyDown, bool activateOnHold, bool activateOnKeyUp)
+        internal Keybind(string name, bool enabled, List<Keys> keys, bool matchKeysOrder, bool activateOnKeyDown, bool activateOnHold, bool activateOnKeyUp, bool activateIfMoreKeysPressed, string conditionTypeName, object[] conditionArgs, string macroTypeName, object[] macroArgs, bool allowOtherKeybinds)
         {
             Name = name;
 
             Enabled = enabled;
+
+            Keys = keys ?? new List<Keys>();
+
+            MatchKeysOrder = matchKeysOrder;
+
+            ActivateOnKeyDown = activateOnKeyDown;
+            ActivateOnHold = activateOnHold;
+            ActivateOnKeyUp = activateOnKeyUp;
+
+            ActivateIfMoreKeysPressed = activateIfMoreKeysPressed;
 
             if (conditionTypeName != null && Program.MainForm.Conditions.ContainsKey(conditionTypeName))
             {
@@ -91,19 +102,14 @@ namespace MultiDeviceKeybinds
                 }
             }
 
-            ActivateIfMoreKeysPressed = activateIfMoreKeysPressed;
             AllowOtherKeybinds = allowOtherKeybinds;
-
-            ActivateOnKeyDown = activateOnKeyDown;
-            ActivateOnHold = activateOnHold;
-            ActivateOnKeyUp = activateOnKeyUp;
         }
 
         public bool TestCondition(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState)
         {
             try
             {
-                return (state == KeyState.Make && lastState != KeyState.Make && ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && ActivateOnHold || state == KeyState.Break && ActivateOnKeyUp) && (Condition == null || Condition.Test(device, key, correctedKey, state, lastState, GUID, ConditionArgs ?? new object[0]));
+                return /*(state == KeyState.Make && lastState != KeyState.Make && ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && ActivateOnHold || state == KeyState.Break && ActivateOnKeyUp) &&*/ (Condition == null || Condition.Test(device, key, correctedKey, state, lastState, GUID, ConditionArgs ?? new object[0]));
             }
             catch (Exception e)
             {

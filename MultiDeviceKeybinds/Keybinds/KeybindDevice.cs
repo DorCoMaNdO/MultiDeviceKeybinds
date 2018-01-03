@@ -33,6 +33,11 @@ namespace MultiDeviceKeybinds
         /// </summary>
         public new Keys[] Pressed { get { return base.Pressed; } internal set { base.Pressed = value; } }
         [JsonIgnore]
+        /// <summary>
+        /// The keys last pressed on the device.
+        /// </summary>
+        public new Keys[] LastPressed { get { return base.LastPressed; } internal set { base.LastPressed = value; } }
+        [JsonIgnore]
         public new bool RControl { get { return base.RControl; } }
         [JsonIgnore]
         public new bool LControl { get { return base.LControl; } }

@@ -65,6 +65,7 @@ namespace MultiKeyboardHook
                 Device = hook.DevicesByID.ContainsKey(device.ID) ? hook.DevicesByID[device.ID] : new Device(device.ID, device.Type, device.Handle, device.Name);
 
                 Device.Pressed = device.Pressed;
+                Device.LastPressed = device.LastPressed;
             }
 
             VKey = vKey;

@@ -269,7 +269,6 @@ namespace MultiDeviceKeybinds
 
                 foreach (Keybind keybind in keybinds)
                 {
-                    //if (!keybind.Enabled || keybind.Keys?.Count == 0) continue;
                     if (!keybind.Enabled || keybind.Keys == null) continue;
 
                     IEnumerable<Keys> pressed = state == KeyState.Make ? e.Device.Pressed : e.Device.LastPressed;
@@ -325,9 +324,14 @@ namespace MultiDeviceKeybinds
 
                     if (condition)
                     {
-                        handled = true;
+                        if (state == KeyState.Make && lastState != KeyState.Make && !keybind.ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && !keybind.ActivateOnHold || state == KeyState.Break && !keybind.ActivateOnKeyUp)
+                        {
+                            if (keybind.Keys.Count > 0) handled = true;
 
-                        if (state == KeyState.Make && lastState != KeyState.Make && !keybind.ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && !keybind.ActivateOnHold || state == KeyState.Break && !keybind.ActivateOnKeyUp) continue;
+                            continue;
+                        }
+
+                        handled = true;
 
                         lock (KeybindsToInvoke)
                         {
@@ -366,7 +370,9 @@ namespace MultiDeviceKeybinds
             {
                 bool handled = false;
 
-                foreach (Keybind keybind in keybinds) if (keybind.PerformMacro(keybind.Device, e.Key, e.CorrectedKey, (KeyState)e.KeyPressState, (KeyState)e.LastKeyPressState) && !handled) handled = true;
+                KeyState state = (KeyState)e.KeyPressState, lastState = (KeyState)e.LastKeyPressState;
+
+                foreach (Keybind keybind in keybinds) if (keybind.PerformMacro(keybind.Device, e.Key, e.CorrectedKey, state, lastState)) handled = true;
 
                 e.Handled = handled;
             }

@@ -98,8 +98,6 @@ namespace MultiDeviceKeybinds
 
             CheckCanSave();
 
-            //Width = parent.Width;
-
             if (ShowDialog(parent) == DialogResult.Cancel) Keybind = null;
 
             return Keybind;
@@ -112,7 +110,7 @@ namespace MultiDeviceKeybinds
 
         private void CheckCanSave()
         {
-            AddEditButton.Enabled = Keybind.Name?.Length > 2;// && Keybind.Keys.Count > 0;
+            AddEditButton.Enabled = Keybind.Name?.Length > 2;
         }
 
         private void NameTextBox_TextChanged(object sender, EventArgs e)
@@ -459,14 +457,11 @@ namespace MultiDeviceKeybinds
 
         private object GetArg(string str, ArgType type)
         {
-            //if (str == null || str.Length == 0) return null;
-
             object arg;
 
             switch (type)
             {
                 case ArgType.Int:
-                    //arg = int.Parse(str);
                     arg = long.Parse(str);
 
                     break;

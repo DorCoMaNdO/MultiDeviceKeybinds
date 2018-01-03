@@ -109,7 +109,7 @@ namespace MultiDeviceKeybinds
         {
             try
             {
-                return /*(state == KeyState.Make && lastState != KeyState.Make && ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && ActivateOnHold || state == KeyState.Break && ActivateOnKeyUp) &&*/ (Condition == null || Condition.Test(device, key, correctedKey, state, lastState, GUID, ConditionArgs ?? new object[0]));
+                return Condition == null || Condition.Test(device, key, correctedKey, state, lastState, GUID, ConditionArgs ?? new object[0]);
             }
             catch (Exception e)
             {

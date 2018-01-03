@@ -211,11 +211,7 @@ namespace MultiDeviceKeybinds
             if (Keybind.ConditionTypeName != null)
             {
                 ConditionComboBox.SelectedIndex = Array.IndexOf(Program.MainForm.Conditions.Keys.ToArray(), Keybind.ConditionTypeName) + 1;
-
-                /*ConditionDescriptionLabel.Text = Keybind.Condition.Description ?? "N/A";
-
-                //ConditionArgsTakenLabel.Text = Keybind.Condition.ArgumentsTaken ?? "N/A";
-                ConditionArgsTakenLabel.Text = Keybind.Condition.ArgumentsTaken ?? "None";*/
+                
                 try
                 {
                     description = Keybind.Condition.Description;
@@ -237,10 +233,6 @@ namespace MultiDeviceKeybinds
             else
             {
                 ConditionComboBox.SelectedIndex = 0;
-
-                /*ConditionDescriptionLabel.Text = "Checks nothing";
-
-                ConditionArgsTakenLabel.Text = "None";*/
             }
 
             ConditionDescriptionLabel.Text = description ?? "N/A";
@@ -252,8 +244,6 @@ namespace MultiDeviceKeybinds
             if (!Configuring)
             {
                 ConditionArgsListBox.Items.Clear();
-
-                //ConditionArgTextBox.Text = "";
             }
             else
             {
@@ -345,11 +335,7 @@ namespace MultiDeviceKeybinds
             if (Keybind.MacroTypeName != null)
             {
                 MacroComboBox.SelectedIndex = Array.IndexOf(Program.MainForm.Macros.Keys.ToArray(), Keybind.MacroTypeName) + 1;
-
-                /*MacroDescriptionLabel.Text = Keybind.Macro.Description ?? "N/A";
-
-                //MacroArgsTakenLabel.Text = Keybind.Macro.ArgumentsTaken ?? "N/A";
-                MacroArgsTakenLabel.Text = Keybind.Macro.ArgumentsTaken ?? "None";*/
+                
                 try
                 {
                     description = Keybind.Macro.Description;
@@ -371,10 +357,6 @@ namespace MultiDeviceKeybinds
             else
             {
                 MacroComboBox.SelectedIndex = 0;
-
-                /*MacroDescriptionLabel.Text = "Does nothing";
-
-                MacroArgsTakenLabel.Text = "None";*/
             }
 
             MacroDescriptionLabel.Text = description ?? "N/A";
@@ -386,8 +368,6 @@ namespace MultiDeviceKeybinds
             if (!Configuring)
             {
                 MacroArgsListBox.Items.Clear();
-
-                //MacroArgTextBox.Text = "";
             }
             else
             {

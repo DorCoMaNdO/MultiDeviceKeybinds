@@ -29,17 +29,14 @@ namespace CustomMacros
 
             List<Tuple<int, KeyState, int>> inputs = new List<Tuple<int, KeyState, int>>();
 
-            /*Stopwatch sw = new Stopwatch();
-            sw.Start();*/
-
             foreach (object arg in args)
             {
                 if (!(arg is string str)) continue;
-                //Console.WriteLine($"arg parsing (split) {sw.ElapsedMilliseconds}");
+
                 string[] key = str.Trim().Split(' ');
-                //Console.WriteLine($"arg parsing (findindex) {sw.ElapsedMilliseconds}");
+
                 int index = Array.FindIndex(keynames, k => k.Length == key[0].Length && k.Equals(key[0], StringComparison.InvariantCultureIgnoreCase));
-                //Console.WriteLine($"arg parsing (add) {sw.ElapsedMilliseconds}");
+
                 int delay = DefaultDelay;
 
                 if (key.Length > 1)
@@ -70,22 +67,12 @@ namespace CustomMacros
                 inputs.Add(new Tuple<int, KeyState, int>(index, KeyState.Break, delay));
             }
 
-            //Console.WriteLine($"done arg parsing {sw.ElapsedMilliseconds}");
-            /*Task.Run(async () =>
-            {*/
-                foreach (Tuple<int, KeyState, int> input in inputs)
-                {
-                    //Console.WriteLine($"preparing to send input {sw.ElapsedMilliseconds}");
-                    InputSimulation.SetKeyState(keys[input.Item1], input.Item2);
-                    //Console.WriteLine($"sent input {sw.ElapsedMilliseconds}");
-                    //await Task.Delay(input.Item3);
-                    InputSimulation.Sleep(input.Item3);
-                }
+            foreach (Tuple<int, KeyState, int> input in inputs)
+            {
+                InputSimulation.SetKeyState(keys[input.Item1], input.Item2);
 
-                /*Console.WriteLine($"done {sw.ElapsedMilliseconds}");
-
-                sw.Stop();*/
-            //});
+                InputSimulation.Sleep(input.Item3);
+            }
 
             return true;
         }

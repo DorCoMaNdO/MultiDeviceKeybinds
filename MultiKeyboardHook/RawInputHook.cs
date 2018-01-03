@@ -50,6 +50,8 @@ namespace MultiKeyboardHook
     public class RawInputHook : NativeWindow, IDisposable
     {
         public const int WM_HOOK = Win32.WM_APP + 1;
+        private const int PM_REMOVE = 0x0001;
+
         public const int MaxWaitingTime = 100;
         private const int MaxBuffer = 15, MaxTimeouts = 10, MaxTimeoutsWaitingTime = 2;
 
@@ -499,7 +501,7 @@ namespace MultiKeyboardHook
                     {
                         bool peeked = false;
                         NativeMessage rawMessage;
-                        while (!(peeked = Win32.PeekMessage(out rawMessage, Handle, Win32.WM_INPUT, Win32.WM_INPUT, 0x0001 /*PM_REMOVE*/)))
+                        while (!(peeked = Win32.PeekMessage(out rawMessage, Handle, Win32.WM_INPUT, Win32.WM_INPUT, PM_REMOVE)))
                         {
                             currentTime = Environment.TickCount;
 

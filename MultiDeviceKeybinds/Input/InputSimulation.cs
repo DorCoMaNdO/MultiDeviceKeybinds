@@ -62,41 +62,6 @@ namespace MultiDeviceKeybinds
             KeyPress((VirtualKeyCode)key);
         }
 
-        /*public static void HoldKey(Keys key, int duration)
-        {
-            HoldKeyAsyncTask(key, duration).GetAwaiter().GetResult();
-        }
-
-        public static Task HoldKeyAsyncTask(Keys key, int duration)
-        {
-            int initialDelay = KeyboardDelay * 1000, delay = KeyboardSpeed;
-
-            return Task.Run(() =>
-            {
-                KeyDown(key);
-
-                if (duration > initialDelay)
-                {
-                    Task.Delay(initialDelay);
-
-                    int repeat = (duration - initialDelay) / delay;
-                    while(repeat-- > 0)
-                    {
-                        KeyDown(key);
-
-                        Task.Delay(delay);
-                    }
-                }
-
-                KeyUp(key);
-            });
-        }
-
-        public static void HoldKeyAsync(Keys key, int duration)
-        {
-            HoldKeyAsyncTask(key, duration);
-        }*/
-
         public static void HoldKey(Keys key, int duration)
         {
             int initialDelay = KeyboardDelay * 1000, delay = KeyboardSpeed;

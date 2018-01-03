@@ -279,7 +279,6 @@ namespace MultiDeviceKeybinds
 
                     if (keybind.MatchKeysOrder)
                     {
-                        //invoke = pressed.SequenceEqual(keybind.Keys);
                         for (int i = 0; i < keybind.Keys.Count; i++)
                         {
                             if (pressed.ElementAt(i) != keybind.Keys[i])

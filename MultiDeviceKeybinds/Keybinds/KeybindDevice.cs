@@ -78,16 +78,6 @@ namespace MultiDeviceKeybinds
             Hidden = hidden;
         }
 
-        public void Save()
-        {
-            string folder = Path.Combine(Program.Location, "Keybinds");
-            Directory.CreateDirectory(folder);
-
-            string file = Path.Combine(folder, GetFileName());
-
-            File.WriteAllText(file, JsonConvert.SerializeObject(this, Formatting.Indented));
-        }
-
         public static string GetFileName(string deviceID)
         {
             string id = deviceID;
@@ -116,6 +106,16 @@ namespace MultiDeviceKeybinds
             if (device != null) foreach (Keybind keybind in device.Keybinds) keybind.Device = device;
 
             return device;
+        }
+
+        public void Save()
+        {
+            string folder = Path.Combine(Program.Location, "Keybinds");
+            Directory.CreateDirectory(folder);
+
+            string file = Path.Combine(folder, GetFileName());
+
+            File.WriteAllText(file, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
     }
 }

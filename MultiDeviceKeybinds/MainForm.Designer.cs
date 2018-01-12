@@ -43,6 +43,8 @@
             this.MacroColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ShowConsoleCheckBox = new System.Windows.Forms.CheckBox();
             this.StartWithWindowsCheckBox = new System.Windows.Forms.CheckBox();
+            this.InputInterceptionModeComboBox = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.DevicesKeybindsSplitContainer)).BeginInit();
             this.DevicesKeybindsSplitContainer.Panel1.SuspendLayout();
             this.DevicesKeybindsSplitContainer.Panel2.SuspendLayout();
@@ -229,11 +231,38 @@
             this.StartWithWindowsCheckBox.UseVisualStyleBackColor = true;
             this.StartWithWindowsCheckBox.CheckedChanged += new System.EventHandler(this.StartWithWindowsCheckBox_CheckedChanged);
             // 
+            // InputInterceptionModeComboBox
+            // 
+            this.InputInterceptionModeComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.InputInterceptionModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.InputInterceptionModeComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.InputInterceptionModeComboBox.FormattingEnabled = true;
+            this.InputInterceptionModeComboBox.Items.AddRange(new object[] {
+            "RawInput + High level hook",
+            "Interception"});
+            this.InputInterceptionModeComboBox.Location = new System.Drawing.Point(768, 16);
+            this.InputInterceptionModeComboBox.Name = "InputInterceptionModeComboBox";
+            this.InputInterceptionModeComboBox.Size = new System.Drawing.Size(198, 21);
+            this.InputInterceptionModeComboBox.TabIndex = 8;
+            this.InputInterceptionModeComboBox.SelectedIndexChanged += new System.EventHandler(this.InputInterceptionModeComboBox_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(765, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(121, 13);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Input interception mode:";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(972, 389);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.InputInterceptionModeComboBox);
             this.Controls.Add(this.StartWithWindowsCheckBox);
             this.Controls.Add(this.ShowConsoleCheckBox);
             this.Controls.Add(this.RemoveKeybindButton);
@@ -272,6 +301,8 @@
         private System.Windows.Forms.ColumnHeader DeviceIDColumn;
         private System.Windows.Forms.CheckBox ShowConsoleCheckBox;
         private System.Windows.Forms.CheckBox StartWithWindowsCheckBox;
+        internal System.Windows.Forms.ComboBox InputInterceptionModeComboBox;
+        private System.Windows.Forms.Label label1;
     }
 }
 

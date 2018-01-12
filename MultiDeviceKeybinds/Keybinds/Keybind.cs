@@ -105,11 +105,11 @@ namespace MultiDeviceKeybinds
             AllowOtherKeybinds = allowOtherKeybinds;
         }
 
-        public bool TestCondition(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState)
+        public bool TestCondition(KeybindDevice device, Keys key, KeyState state, KeyState lastState)
         {
             try
             {
-                return Condition == null || Condition.Test(device, key, correctedKey, state, lastState, GUID, ConditionArgs ?? new object[0]);
+                return Condition == null || Condition.Test(device, key, state, lastState, GUID, ConditionArgs ?? new object[0]);
             }
             catch (Exception e)
             {
@@ -120,13 +120,13 @@ namespace MultiDeviceKeybinds
             }
         }
 
-        public bool PerformMacro(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, bool testCondition = false)
+        public bool PerformMacro(KeybindDevice device, Keys key, KeyState state, KeyState lastState, bool testCondition = false)
         {
             try
             {
-                if (testCondition && !TestCondition(device, key, correctedKey, state, lastState)) return false;
+                if (testCondition && !TestCondition(device, key, state, lastState)) return false;
 
-                return Macro == null || Macro.Perform(device, key, correctedKey, state, lastState, GUID, MacroArgs ?? new object[0]);
+                return Macro == null || Macro.Perform(device, key, state, lastState, GUID, MacroArgs ?? new object[0]);
             }
             catch (Exception e)
             {

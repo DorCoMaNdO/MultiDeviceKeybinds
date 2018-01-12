@@ -12,7 +12,7 @@ namespace CustomMacros
 
         const string ToggleMute = "togglemute", Mute = "mute", Unmute = "unmute", SetVolume = "setvolume", Volume = "volume";
 
-        public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys key, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             AudioDeviceAction action = AudioDeviceAction.ToggleMute;
 

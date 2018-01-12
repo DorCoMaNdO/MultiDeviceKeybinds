@@ -15,7 +15,7 @@ namespace CustomMacros
         const int MB = 1024 * 1024;
         const int DefaultMaxSize = 30;
 
-        public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys key, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             long maxSize = DefaultMaxSize;
 

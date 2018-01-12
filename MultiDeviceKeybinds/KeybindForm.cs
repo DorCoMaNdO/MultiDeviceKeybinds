@@ -32,7 +32,14 @@ namespace MultiDeviceKeybinds
             ConditionArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
             MacroArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
 
-            Program.Hook.HookDisabledOnKeyPress += RawInputHook_HookDisabledOnKeyPress;
+            if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Hook)
+            {
+                Program.Hook.HookDisabledOnKeyPress += RawInputHook_HookDisabledOnKeyPress;
+            }
+            else if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Interception)
+            {
+                
+            }
         }
 
         internal Keybind Add(MainForm parent, KeybindDevice device, Keybind clone = null)

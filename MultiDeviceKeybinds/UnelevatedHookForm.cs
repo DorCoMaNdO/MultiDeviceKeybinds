@@ -29,9 +29,8 @@ namespace MultiDeviceKeybinds
                 MessageBox.Show("Hook installation failed.", "Multi Device Keybinds (Subprocess)", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 parent.Kill();
-
-                //Application.Exit();
-                Process.GetCurrentProcess().Kill();
+                
+                Environment.Exit(0);
 
                 return;
             }
@@ -39,8 +38,8 @@ namespace MultiDeviceKeybinds
             new Thread(() =>
             {
                 parent.WaitForExit();
-
-                Application.Exit();
+                
+                Environment.Exit(0);
             })
             {
                 IsBackground = true,

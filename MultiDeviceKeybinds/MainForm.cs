@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Interceptor;
+using Microsoft.Win32;
 using MultiKeyboardHook;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +10,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +20,52 @@ namespace MultiDeviceKeybinds
 {
     partial class MainForm : Form
     {
+        [DllImport("user32.dll")]
+        static extern uint MapVirtualKeyEx(uint uCode, uint uMapType, IntPtr dwhkl);
+
+        /// <summary>
+        /// The set of valid MapTypes used in MapVirtualKey
+        /// </summary>
+        public enum MapVirtualKeyMapTypes : uint
+        {
+            /// <summary>
+            /// uCode is a virtual-key code and is translated into a scan code.
+            /// If it is a virtual-key code that does not distinguish between left- and
+            /// right-hand keys, the left-hand scan code is returned.
+            /// If there is no translation, the function returns 0.
+            /// </summary>
+            MAPVK_VK_TO_VSC = 0x00,
+
+            /// <summary>
+            /// uCode is a scan code and is translated into a virtual-key code that
+            /// does not distinguish between left- and right-hand keys. If there is no
+            /// translation, the function returns 0.
+            /// </summary>
+            MAPVK_VSC_TO_VK = 0x01,
+
+            /// <summary>
+            /// uCode is a virtual-key code and is translated into an unshifted
+            /// character value in the low-order word of the return value. Dead keys (diacritics)
+            /// are indicated by setting the top bit of the return value. If there is no
+            /// translation, the function returns 0.
+            /// </summary>
+            MAPVK_VK_TO_CHAR = 0x02,
+
+            /// <summary>
+            /// Windows NT/2000/XP: uCode is a scan code and is translated into a
+            /// virtual-key code that distinguishes between left- and right-hand keys. If
+            /// there is no translation, the function returns 0.
+            /// </summary>
+            MAPVK_VSC_TO_VK_EX = 0x03,
+
+            /// <summary>
+            /// Not currently documented
+            /// </summary>
+            MAPVK_VK_TO_VSC_EX = 0x04
+        }
+
         private RawInputHook Hook { get { return Program.Hook; } }
+        private Input Interception { get { return Program.Interception; } set { Program.Interception = value; } }
 
         internal Dictionary<string, ICondition> Conditions;
         internal Dictionary<string, IMacro> Macros;
@@ -38,41 +85,69 @@ namespace MultiDeviceKeybinds
 
             InitializeComponent();
 
+            InputInterceptionModeComboBox.SelectedIndex = (int)Program.Settings.InputInterceptionMode;
+
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true)) StartWithWindowsCheckBox.Checked = key.GetValue(Application.ProductName) is string path && path.Equals($"\"{Application.ExecutablePath}\"");
 
-            while (!Hook.Install(Handle))
+            ShowConsoleCheckBox.Checked = Program.Settings.ShowConsole;
+
+            if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Hook)
             {
-                if (MessageBox.Show("Hook installation failed.", "Multi Device Keybinds", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
+                while (!Hook.Install(Handle))
                 {
-                    //Application.Exit();
-                    Process.GetCurrentProcess().Kill();
-
-                    return;
-                }
-            }
-
-            if (Program.RunningAsAdmin)
-            {
-                Process p = null;
-
-                new Thread(() =>
-                {
-                    while (!Program.Closing)
+                    if (MessageBox.Show("Hook installation failed.", "Multi Device Keybinds", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1) == DialogResult.Cancel)
                     {
-                        p = CreateSubprocess(Handle);
+                        Environment.Exit(0);
 
-                        p.WaitForExit();
+                        return;
                     }
-                })
+                }
+
+                if (Program.RunningAsAdmin)
                 {
-                    IsBackground = true,
-                    Name = "Subprocess loop thread"
-                }.Start();
+                    Process p = null;
 
-                while (p == null) Thread.Sleep(1);
+                    new Thread(() =>
+                    {
+                        while (!Program.Closing)
+                        {
+                            p = CreateSubprocess(Handle);
+
+                            p.WaitForExit();
+                        }
+                    })
+                    {
+                        IsBackground = true,
+                        Name = "Subprocess loop thread"
+                    }.Start();
+
+                    while (p == null) Thread.Sleep(1);
+                }
+
+                Console.WriteLine();
+
+                /*RawInputHook_DeviceListUpdated(null, Hook.Devices);
+                Hook.DeviceListUpdated += RawInputHook_DeviceListUpdated;*/
+
+                Hook.OnKeyPress += RawInputHook_KeyPressed;
+                Hook.HookDisabledOnKeyPress += RawInputHook_KeyPressed;
+
+                Hook.OnKeyPress += Keybinds_OnKeyPress;
+                Hook.HandledKeyPress += Keybinds_HandledKeyPress;
             }
+            else if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Interception)
+            {
+                Hook.EnumerateDevices();
 
-            Console.WriteLine();
+                Interception = new Input
+                {
+                    KeyboardFilterMode = KeyboardFilterMode.All
+                };
+
+                Interception.Load();
+
+                Interception.OnKeyPressed += Interception_OnKeyPressed;
+            }
 
             KeybindForm = new KeybindForm();
 
@@ -86,12 +161,6 @@ namespace MultiDeviceKeybinds
 
             RawInputHook_DeviceListUpdated(null, Hook.Devices);
             Hook.DeviceListUpdated += RawInputHook_DeviceListUpdated;
-
-            Hook.OnKeyPress += RawInputHook_KeyPressed;
-            Hook.HookDisabledOnKeyPress += RawInputHook_KeyPressed;
-
-            Hook.OnKeyPress += Keybinds_OnKeyPress;
-            Hook.HandledKeyPress += Keybinds_HandledKeyPress;
 
             Loaded = true;
         }
@@ -191,39 +260,127 @@ namespace MultiDeviceKeybinds
             }.Start();
         }
 
-        private async void RawInputHook_KeyPressed(object sender, RawInputKeyPressEventArgs e)
+        private void UpdateKeyPress(KeybindDevice device, Keys key, KeyState state)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => UpdateKeyPress(device, key, state)));
+
+                return;
+            }
+
+            KeyPressOutputLabel.Text = $"Device name: {device.Name}\r\n" +
+                      $"Device ID: {device.ID}\r\n" +
+                      $"Key: {key}\r\n" +
+                      $"State: {state}\r\n";
+
+            DevicesListView.SuspendLayout();
+
+            foreach (DeviceListViewItem item in DevicesListView.Items)
+            {
+                item.BackColor = item.Device.ID == device.ID ? Color.Green : SystemColors.Window;
+                item.ForeColor = item.Device.ID == device.ID ? Color.White : Color.Black;
+            }
+
+            DevicesListView.ResumeLayout();
+        }
+
+        private void RawInputHook_KeyPressed(object sender, RawInputKeyPressEventArgs e)
+        {
+            KeybindDevice device = null;
             lock (KeybindDevices)
             {
                 if (KeybindDevices.ContainsKey(e.Device.ID))
                 {
-                    KeybindDevices[e.Device.ID].Pressed = e.Device.Pressed;
-                    KeybindDevices[e.Device.ID].LastPressed = e.Device.LastPressed;
+                    device = KeybindDevices[e.Device.ID];
+
+                    device.Pressed = e.Device.Pressed;
+                    device.LastPressed = e.Device.LastPressed;
                 }
             }
 
             if (Program.ForegroundWindow != Handle) return;
 
-            await Task.Run(() =>
+            UpdateKeyPress(device, e.CorrectedKey, (KeyState)e.KeyPressState);
+        }
+
+        private void Interception_OnKeyPressed(object sender, KeyPressedEventArgs e)
+        {
+            Keys key = (Keys)MapVirtualKeyEx((uint)e.Key, (uint)MapVirtualKeyMapTypes.MAPVK_VSC_TO_VK_EX, IntPtr.Zero);
+
+            if (e.State.HasFlag(Interceptor.KeyState.E0))
             {
-                this.InvokeIfRequired(() =>
+                if (key == Keys.LControlKey)
                 {
-                    KeyPressOutputLabel.Text = $"Device name: {e.Device.Name}\r\n" +
-                      $"Device ID: {e.Device.ID}\r\n" +
-                      $"Key: {e.CorrectedKey}\r\n" +
-                      $"State: {e.KeyPressState}\r\n";
+                    key = Keys.RControlKey;
+                }
+                else if (key == Keys.LMenu)
+                {
+                    key = Keys.RMenu;
+                }
+            }
 
-                    DevicesListView.SuspendLayout();
+            KeyState state = e.State.HasFlag(Interceptor.KeyState.Up) ? KeyState.Break : KeyState.Make, lastState = KeyState.Break;
 
-                    foreach (DeviceListViewItem item in DevicesListView.Items)
-                    {
-                        item.BackColor = item.Device.ID == e.Device.ID ? Color.Green : SystemColors.Window;
-                        item.ForeColor = item.Device.ID == e.Device.ID ? Color.White : Color.Black;
-                    }
+            IntPtr hardwareidptr = Marshal.AllocHGlobal(512);
 
-                    DevicesListView.ResumeLayout();
-                });
-            });
+            int hardwareidlength = InterceptionDriver.GetHardwareId(Interception.Context, Interception.DeviceID, hardwareidptr, 512);
+            string hardwareid = Marshal.PtrToStringAuto(hardwareidptr);
+
+            Marshal.FreeHGlobal(hardwareidptr);
+
+            hardwareid = $@"\\?\{hardwareid.Replace('\\', '#')}#";
+
+            int revidx = hardwareid.IndexOf("&REV_", StringComparison.InvariantCultureIgnoreCase);
+            if (revidx > -1) hardwareid = $"{hardwareid.Substring(0, revidx)}{hardwareid.Substring(revidx + 9)}";
+
+            KeybindDevice device = null;
+            lock (KeybindDevices) device = KeybindDevices.Values.FirstOrDefault(d => d.ID.StartsWith(hardwareid, StringComparison.InvariantCultureIgnoreCase));
+
+            if (device != null)
+            {
+                lastState = device.Pressed.Contains(key) ? KeyState.Make : KeyState.Break;
+
+                List<Keys> pressed = device.Pressed.ToList();
+
+                if (state == KeyState.Make && !pressed.Contains(key))
+                {
+                    pressed.Add(key);
+                }
+                else if (state == KeyState.Break && pressed.Contains(key))
+                {
+                    pressed.RemoveAll(k => k == key);
+                }
+
+                device.LastPressed = device.Pressed;
+                device.Pressed = pressed.ToArray();
+
+                Console.WriteLine($"{hardwareid} {device.Name} {key} {state}");
+
+                UpdateKeyPress(device, key, state);
+
+                string guid = Guid.NewGuid().ToString();
+
+                e.Handled = InvokeKeybindsCondition(guid, device, key, state, lastState);
+
+                if (e.Handled) Console.WriteLine($"BLOCKED {key} {state}");
+
+                new Thread(() =>
+                {
+                    InvokeKeybindsMacro(guid, device, key, state, lastState);
+                }).Start();
+            }
+        }
+
+        private void InputInterceptionModeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!Loaded) return;
+
+            MessageBox.Show("Restart the program for the changes to take effect.", "Multi Device Keybinds");
+
+            Program.Settings.InputInterceptionMode = (InputInterceptionMode)InputInterceptionModeComboBox.SelectedIndex;
+
+            Program.Settings.Save();
         }
 
         private void StartWithWindowsCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -253,11 +410,17 @@ namespace MultiDeviceKeybinds
             {
                 Program.HideConsole();
             }
+
+            if (!Loaded) return;
+
+            Program.Settings.ShowConsole = ShowConsoleCheckBox.Checked;
+
+            Program.Settings.Save();
         }
 
         private void Keybinds_OnKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
-            Keybind[] keybinds = null;
+            /*Keybind[] keybinds = null;
 
             lock (KeybindDevices) if (KeybindDevices.ContainsKey(e.Device.ID)) keybinds = KeybindDevices[e.Device.ID].Keybinds.ToArray();
 
@@ -320,7 +483,7 @@ namespace MultiDeviceKeybinds
 
                     if (!invoke) continue;
 
-                    bool condition = keybind.TestCondition(keybind.Device, e.Key, e.CorrectedKey, state, lastState);
+                    bool condition = keybind.TestCondition(keybind.Device, e.CorrectedKey, state, lastState);
 
                     if (condition)
                     {
@@ -349,12 +512,112 @@ namespace MultiDeviceKeybinds
                 }
 
                 e.Handled = handled;
+            }*/
+
+            KeybindDevice device = null;
+            lock (KeybindDevices) if (KeybindDevices.ContainsKey(e.Device.ID)) device = KeybindDevices[e.Device.ID];
+
+            InvokeKeybindsCondition(e.GUID, device, e.CorrectedKey, (KeyState)e.KeyPressState, (KeyState)e.LastKeyPressState);
+        }
+
+        private bool InvokeKeybindsCondition(string guid, KeybindDevice device, Keys pressedKey, KeyState state, KeyState lastState)
+        {
+            bool handled = false;
+
+            Keybind[] keybinds = null;
+
+            lock (device?.Keybinds) keybinds = device.Keybinds.ToArray();
+
+            if (keybinds?.Length > 0)
+            {
+                foreach (Keybind keybind in keybinds)
+                {
+                    if (!keybind.Enabled || keybind.Keys == null) continue;
+
+                    IEnumerable<Keys> pressed = state == KeyState.Make ? device.Pressed : device.LastPressed;
+
+                    if (pressed.Count() < keybind.Keys.Count || !keybind.ActivateIfMoreKeysPressed && pressed.Count() > keybind.Keys.Count) continue;
+
+                    bool invoke = true;
+
+                    if (keybind.MatchKeysOrder)
+                    {
+                        for (int i = 0; i < keybind.Keys.Count; i++)
+                        {
+                            if (pressed.ElementAt(i) != keybind.Keys[i])
+                            {
+                                invoke = false;
+
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (Keys key in keybind.Keys)
+                        {
+                            if (!pressed.Contains(key))
+                            {
+                                invoke = false;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!invoke) continue;
+
+#warning condition might need to change to include test for the current key being in the keybind's keys
+                    if (!keybind.ActivateIfMoreKeysPressed)
+                    {
+                        foreach (Keys key in pressed)
+                        {
+                            if (!keybind.Keys.Contains(key))
+                            {
+                                invoke = false;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!invoke) continue;
+
+                    bool condition = keybind.TestCondition(keybind.Device, pressedKey, state, lastState);
+
+                    if (condition)
+                    {
+                        if (state == KeyState.Make && lastState != KeyState.Make && !keybind.ActivateOnKeyDown || state == KeyState.Make && lastState == KeyState.Make && !keybind.ActivateOnHold || state == KeyState.Break && !keybind.ActivateOnKeyUp)
+                        {
+                            if (keybind.Keys.Count > 0) handled = true;
+
+                            continue;
+                        }
+
+                        handled = true;
+
+                        lock (KeybindsToInvoke)
+                        {
+                            if (!KeybindsToInvoke.ContainsKey(guid)) KeybindsToInvoke.Add(guid, new List<Keybind>());
+
+                            KeybindsToInvoke[guid].Add(keybind);
+                        }
+
+                        if (!keybind.AllowOtherKeybinds) break;
+
+                        //continue;
+                    }
+
+                    //if (state == KeyState.Make && lastState != KeyState.Make && keybind.BlockKeyDown || state == KeyState.Make && lastState == KeyState.Make && keybind.BlockKeyHold || state == KeyState.Break && keybind.BlockKeyUp) handled = true;
+                }
             }
+
+            return handled;
         }
 
         private void Keybinds_HandledKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
-            List<Keybind> keybinds = null;
+            /*List<Keybind> keybinds = null;
 
             lock (KeybindsToInvoke)
             {
@@ -372,10 +635,36 @@ namespace MultiDeviceKeybinds
 
                 KeyState state = (KeyState)e.KeyPressState, lastState = (KeyState)e.LastKeyPressState;
 
-                foreach (Keybind keybind in keybinds) if (keybind.PerformMacro(keybind.Device, e.Key, e.CorrectedKey, state, lastState)) handled = true;
+                foreach (Keybind keybind in keybinds) if (keybind.PerformMacro(keybind.Device, e.CorrectedKey, state, lastState)) handled = true;
 
                 e.Handled = handled;
+            }*/
+
+            KeybindDevice device = null;
+            lock (KeybindDevices) if (KeybindDevices.ContainsKey(e.Device.ID)) device = KeybindDevices[e.Device.ID];
+
+            InvokeKeybindsMacro(e.GUID, device, e.CorrectedKey, (KeyState)e.KeyPressState, (KeyState)e.LastKeyPressState);
+        }
+
+        private bool InvokeKeybindsMacro(string guid, KeybindDevice device, Keys pressedKey, KeyState state, KeyState lastState)
+        {
+            bool handled = false;
+
+            List<Keybind> keybinds = null;
+
+            lock (KeybindsToInvoke)
+            {
+                if (KeybindsToInvoke.ContainsKey(guid))
+                {
+                    keybinds = KeybindsToInvoke[guid];
+
+                    KeybindsToInvoke.Remove(guid);
+                }
             }
+
+            if (keybinds != null) foreach (Keybind keybind in keybinds) if (keybind.PerformMacro(keybind.Device, pressedKey, state, lastState)) handled = true;
+
+            return handled;
         }
 
         private void RawInputHook_DeviceListUpdated(object sender, Device[] devices)

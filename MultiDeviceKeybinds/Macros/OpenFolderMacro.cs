@@ -42,7 +42,7 @@ namespace MultiDeviceKeybinds
         public string Description { get { return "Opens a folder or brings it to front if it's already open."; } }
         public string ArgumentsTaken { get { return "(string) path"; } }
 
-        public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys key, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             if (args.Length < 1 || !(args[0] is string path) || string.IsNullOrWhiteSpace(path) || !Directory.Exists(path)) return false;
 

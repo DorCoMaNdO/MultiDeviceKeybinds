@@ -1,7 +1,9 @@
-﻿using MultiKeyboardHook;
+﻿using Interceptor;
+using MultiKeyboardHook;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -47,6 +49,8 @@ namespace MultiDeviceKeybinds
 
         internal static string Location { get { return AppDomain.CurrentDomain.BaseDirectory; } }
 
+        internal static Settings Settings;
+
         public static bool RunningAsAdmin { get; private set; } = false;
         public static bool Closing { get; private set; } = false;
 
@@ -54,6 +58,7 @@ namespace MultiDeviceKeybinds
         internal static StreamWriter PipeWriter;
 
         internal static RawInputHook Hook;
+        internal static Input Interception;
 
         /// <summary>
         /// The main entry point for the application.
@@ -67,6 +72,8 @@ namespace MultiDeviceKeybinds
 
             Application.ApplicationExit += (sender, e) => { Closing = true; };
 
+            Settings = Settings.Load();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -74,7 +81,7 @@ namespace MultiDeviceKeybinds
 
             RunningAsAdmin = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
-            if (!RunningAsAdmin)
+            if (Settings.InputInterceptionMode == InputInterceptionMode.Hook && !RunningAsAdmin)
             {
                 Process parent = null;
 
@@ -94,6 +101,8 @@ namespace MultiDeviceKeybinds
 
                     if (parent != null)
                     {
+                        //using (WebClient w = new WebClient()) w.DownloadString($"http://localhost:26762/api/v1/hidguardian/whitelist/add/{Process.GetCurrentProcess().Id}");
+
                         Console.Title = "Multi Device Keybinds (Subprocess)";
 
                         Thread.CurrentThread.Priority = ThreadPriority.Highest;
@@ -107,7 +116,6 @@ namespace MultiDeviceKeybinds
                         UnelevatedHookForm form = new UnelevatedHookForm(parent);
 
                         Application.Run(form);
-
                     }
 
                     return;
@@ -136,11 +144,14 @@ namespace MultiDeviceKeybinds
                 }
             }
 
+            //using (WebClient w = new WebClient()) w.DownloadString($"http://localhost:26762/api/v1/hidguardian/whitelist/add/{Process.GetCurrentProcess().Id}");
+
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
             current.PriorityClass = ProcessPriorityClass.High;
 
             Hook = new RawInputHook();
+            //if (Settings.InputInterceptionMode == InputInterceptionMode.Hook) Hook = new RawInputHook();
 
             int width = Console.WindowWidth * 2;
             if (width > Console.LargestWindowWidth) width = Console.LargestWindowWidth;
@@ -152,7 +163,7 @@ namespace MultiDeviceKeybinds
             ForegroundWindowDelegate = new WinEventDelegate(WinEventProc);
             ForegroundWindowHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, ForegroundWindowDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
 
-            HideConsole();
+            if (!Settings.ShowConsole) HideConsole();
 
             Application.Run(MainForm = new MainForm());
         }
@@ -179,6 +190,7 @@ namespace MultiDeviceKeybinds
         private static void Application_ApplicationExit(object sender, EventArgs e)
         {
             Hook?.Dispose();
+            Interception?.Unload();
 
             if (ForegroundWindowHook != IntPtr.Zero) UnhookWinEvent(ForegroundWindowHook);
 

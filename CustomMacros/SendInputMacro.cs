@@ -23,7 +23,7 @@ namespace CustomMacros
             keys = (Keys[])Enum.GetValues(typeof(Keys));
         }
 
-        public bool Perform(KeybindDevice device, Keys pressedKey, Keys correctedPressedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys pressedKey, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             if (args.Length == 0) return false;
 

@@ -56,7 +56,7 @@ namespace MultiDeviceKeybinds
         public string Description { get { return "Sets the foreground window to a certain process' window"; } }
         public string ArgumentsTaken { get { return "(string) process name\r\n[string] window class name"; } }
 
-        public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys key, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             if (args.Length < 1 || !(args[0] is string processname)) return false;
 

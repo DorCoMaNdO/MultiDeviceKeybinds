@@ -269,7 +269,7 @@ namespace MultiKeyboardHook
             InstallHook(Handle);
         }
 
-        private void EnumerateDevices()
+        public void EnumerateDevices()
         {
             lock (lockObj)
             {
@@ -282,12 +282,12 @@ namespace MultiKeyboardHook
                 DevicesByID.Add(globalDevice.ID, globalDevice);
 
                 uint deviceCount = 0;
-                int dwSize = (Marshal.SizeOf(typeof(RawInputDeviceList)));
+                uint dwSize = (uint)(Marshal.SizeOf(typeof(RawInputDeviceList)));
 
-                if (Win32.GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, (uint)dwSize) == 0)
+                if (Win32.GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, dwSize) == 0)
                 {
                     IntPtr pRawInputDeviceList = Marshal.AllocHGlobal((int)(dwSize * deviceCount));
-                    Win32.GetRawInputDeviceList(pRawInputDeviceList, ref deviceCount, (uint)dwSize);
+                    Win32.GetRawInputDeviceList(pRawInputDeviceList, ref deviceCount, dwSize);
 
                     for (var i = 0; i < deviceCount; i++)
                     {

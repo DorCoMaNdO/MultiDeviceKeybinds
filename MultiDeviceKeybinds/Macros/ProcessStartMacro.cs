@@ -9,7 +9,7 @@ namespace MultiDeviceKeybinds
         public string Description { get { return "Launches a new process."; } }
         public string ArgumentsTaken { get { return "(string) file path\r\n[string] arguments"; } }
 
-        public bool Perform(KeybindDevice device, Keys key, Keys correctedKey, KeyState state, KeyState lastState, string guid, params object[] args)
+        public bool Perform(KeybindDevice device, Keys key, KeyState state, KeyState lastState, string guid, params object[] args)
         {
             if (args.Length < 1 || !(args[0] is string path)) return false;
 

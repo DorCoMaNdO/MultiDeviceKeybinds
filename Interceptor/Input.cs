@@ -365,15 +365,6 @@ namespace Interceptor
                 State = state
             };
 
-            /*if (state == MouseState.ScrollUp)
-            {
-                mouseStroke.Rolling = 120;
-            }
-            else if (state == MouseState.ScrollDown)
-            {
-                mouseStroke.Rolling = -120;
-            }*/
-
             mouseStroke.Rolling = (short)(state == MouseState.ScrollUp ? 120 : state == MouseState.ScrollDown ? -120 : mouseStroke.Rolling);
 
             stroke.Mouse = mouseStroke;
@@ -422,10 +413,11 @@ namespace Interceptor
             if (useDriver)
             {
                 Stroke stroke = new Stroke();
-                MouseStroke mouseStroke = new MouseStroke();
-
-                mouseStroke.X = deltaX;
-                mouseStroke.Y = deltaY;
+                MouseStroke mouseStroke = new MouseStroke
+                {
+                    X = deltaX,
+                    Y = deltaY
+                };
 
                 stroke.Mouse = mouseStroke;
                 stroke.Mouse.Flags = MouseFlags.MoveRelative;
@@ -447,10 +439,11 @@ namespace Interceptor
             if (useDriver)
             {
                 Stroke stroke = new Stroke();
-                MouseStroke mouseStroke = new MouseStroke();
-
-                mouseStroke.X = x;
-                mouseStroke.Y = y;
+                MouseStroke mouseStroke = new MouseStroke
+                {
+                    X = x,
+                    Y = y
+                };
 
                 stroke.Mouse = mouseStroke;
                 stroke.Mouse.Flags = MouseFlags.MoveAbsolute;

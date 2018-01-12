@@ -77,6 +77,7 @@ namespace MultiDeviceKeybinds
 
         private Dictionary<string, List<Keybind>> KeybindsToInvoke = new Dictionary<string, List<Keybind>>();
 
+        private IntPtr handle;
         private bool Loaded = false;
 
         public MainForm()
@@ -85,12 +86,14 @@ namespace MultiDeviceKeybinds
 
             InitializeComponent();
 
+            handle = Handle;
+
             InputInterceptionModeComboBox.SelectedIndex = (int)Program.Settings.InputInterceptionMode;
 
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true)) StartWithWindowsCheckBox.Checked = key.GetValue(Application.ProductName) is string path && path.Equals($"\"{Application.ExecutablePath}\"");
 
             ShowConsoleCheckBox.Checked = Program.Settings.ShowConsole;
-
+#warning TODO: Cleanup multiple input interception modes implementation, create an abstract class for different implementations to inherit
             if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Hook)
             {
                 while (!Hook.Install(Handle))
@@ -125,7 +128,7 @@ namespace MultiDeviceKeybinds
                 }
 
                 Console.WriteLine();
-                
+
                 Hook.OnKeyPress += RawInputHook_KeyPressed;
                 Hook.HookDisabledOnKeyPress += RawInputHook_KeyPressed;
 
@@ -352,9 +355,20 @@ namespace MultiDeviceKeybinds
                 device.LastPressed = device.Pressed;
                 device.Pressed = pressed.ToArray();
 
-                Console.WriteLine($"{hardwareid} {device.Name} {key} {state}");
+                Console.WriteLine($"{device.Name} {hardwareid} {key} {state}");
 
-                UpdateKeyPress(device, key, state);
+                if (Program.ForegroundWindow == handle)
+                {
+                    UpdateKeyPress(device, key, state);
+
+                    return;
+                }
+                else if (KeybindForm.SetKeys(device, state))
+                {
+                    e.Handled = true;
+
+                    return;
+                }
 
                 string guid = Guid.NewGuid().ToString();
 

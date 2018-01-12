@@ -1,4 +1,5 @@
-﻿using MultiKeyboardHook;
+﻿using Interceptor;
+using MultiKeyboardHook;
 using System;
 using System.Data;
 using System.Drawing;
@@ -32,14 +33,7 @@ namespace MultiDeviceKeybinds
             ConditionArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
             MacroArgTypeComboBox.Items.AddRange(Enum.GetNames(typeof(ArgType)));
 
-            if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Hook)
-            {
-                Program.Hook.HookDisabledOnKeyPress += RawInputHook_HookDisabledOnKeyPress;
-            }
-            else if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Interception)
-            {
-                
-            }
+            if (Program.Settings.InputInterceptionMode == InputInterceptionMode.Hook) Program.Hook.HookDisabledOnKeyPress += RawInputHook_HookDisabledOnKeyPress;
         }
 
         internal Keybind Add(MainForm parent, KeybindDevice device, Keybind clone = null)
@@ -150,17 +144,30 @@ namespace MultiDeviceKeybinds
 
         private void RawInputHook_HookDisabledOnKeyPress(object sender, RawInputKeyPressEventArgs e)
         {
-            if (Program.ForegroundWindow != Handle || !Visible || !KeysTextBox.Focused || Device?.ID != e.Device.ID) return;
+            e.Handled = SetKeys(e.Device, (KeyState)e.KeyPressState);
+        }
 
-            e.Handled = true;
+        internal bool SetKeys(Device device, KeyState state)
+        {
+            if (InvokeRequired)
+            {
+                bool handled = false;
+                Invoke(new Action(()=> { handled = SetKeys(device, state); }));
 
-            if ((KeyState)e.KeyPressState != KeyState.Make) return;
+                return handled;
+            }
+
+            if (Program.ForegroundWindow != Handle || !Visible || !KeysTextBox.Focused || Device?.ID != device.ID) return false;
+
+            if (state != KeyState.Make) return true;
 
             Keybind.Keys.Clear();
 
-            Keybind.Keys.AddRange(e.Device.Pressed);
+            Keybind.Keys.AddRange(device.Pressed);
 
             UpdateKeys();
+
+            return true;
         }
 
         private void MatchKeysOrderCheckBox_CheckedChanged(object sender, EventArgs e)
